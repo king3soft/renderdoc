@@ -6,6 +6,8 @@ cmake -DBUILD_ANDROID=On -DANDROID_ABI=armeabi-v7a -GNinja ..
 if exist lib rd /s /q lib
 ninja
 cd ..
+
+mkdir x64\\Development\\plugins\\android
 copy build-android\\bin\\org.renderdoc.renderdoccmd.arm32.apk .\\x64\\Development\\plugins\\android\\org.renderdoc.renderdoccmd.arm32.apk
 
 
