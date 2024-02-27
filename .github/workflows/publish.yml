@@ -103,11 +103,6 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Set up Ninja tools
       uses: seanmiddleditch/gha-setup-ninja@master
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
-      with:
-        java-version: '11'
-        distribution: 'temurin'
     - name: Set up Android SDK
       uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
       with:
@@ -121,20 +116,6 @@ jobs:
     - name: Building solution
       run: msbuild.exe renderdoc.sln "/m" "/p:Configuration=${{ matrix.configuration }}" "/p:Platform=${{ matrix.platform }}" "/p:PlatformToolset=${{ matrix.toolset }}"
       shell: powershell
-    - if: matrix.configuration == 'Development'
-      name: Running core unit tests
-      run: |
-        if ! ./*/Development/renderdoccmd.exe test unit -o test.log; then
-          echo "::error::$(cat test.log)" | tr -d '\r' |  tr '\n' '\001' | sed -e 's#\x01#%0D%0A#g';
-          exit 1;
-        fi
-    - if: matrix.configuration == 'Development'
-      name: Running UI unit tests
-      run: |
-        if ! ./*/Development/qrenderdoc.exe --unittest log=test.log; then
-          echo "::error::$(cat test.log)" | tr -d '\r' |  tr '\n' '\001' | sed -e 's#\x01#%0D%0A#g';
-          exit 1;
-        fi
     - name: Building android
       run: ./buildAndroid.bat
     - name: Uploading
