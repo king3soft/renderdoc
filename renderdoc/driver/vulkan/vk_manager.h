@@ -319,12 +319,12 @@ public:
     return id;
   }
 
-  unsigned long long djb2_hash(const char* pCode, size_t len)
+  unsigned long long djb2_hash(const char *pCode, size_t len)
   {
     unsigned long long hash = 5381;
-    for (size_t i = 0; i < len; i++)
+    for(size_t i = 0; i < len; i++)
     {
-      hash = ((hash << 5) + hash) + pCode[i];  // hash * 33 + c
+      hash = ((hash << 5) + hash) + pCode[i];    // hash * 33 + c
     }
     return hash;
   }
