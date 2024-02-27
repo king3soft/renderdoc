@@ -38,6 +38,13 @@ ResourceId GetNewUniqueID()
   return ret;
 }
 
+ResourceId GetHashID(int64_t hasdId)
+{
+  ResourceId ret;
+  ret.id = hasdId;
+  return ret;
+}
+
 void SetReplayResourceIDs()
 {
   // separate replay IDs from live IDs by adding a value when replaying.

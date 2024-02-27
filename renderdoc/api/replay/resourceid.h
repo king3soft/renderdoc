@@ -34,6 +34,7 @@ namespace ResourceIDGen
 {
 // the only function allowed access to ResourceId internals, for allocating a new ID
 ResourceId GetNewUniqueID();
+ResourceId GetHashID(int64_t hashId);
 };
 #endif
 
@@ -81,6 +82,7 @@ private:
 
 #ifdef RENDERDOC_EXPORTS
   friend ResourceId ResourceIDGen::GetNewUniqueID();
+  friend ResourceId ResourceIDGen::GetHashID(int64_t hashId);
   friend struct std::hash<ResourceId>;
 #endif
 };

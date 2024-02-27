@@ -298,6 +298,35 @@ public:
     return id;
   }
 
+  template <typename parenttype, typename realtype>
+  ResourceId WrapResourceWithHashId(parenttype parentObj, realtype &obj, int64_t hashId)
+  {
+    RDCASSERT(obj != VK_NULL_HANDLE);
+
+    ResourceId id = ResourceIDGen::GetHashID(hashId);
+    typename UnwrapHelper<realtype>::Outer *wrapped =
+        new typename UnwrapHelper<realtype>::Outer(obj, id);
+
+    SetTableIfDispatchable(IsCaptureMode(m_State), parentObj, m_Core, wrapped);
+
+    AddCurrentResource(id, wrapped);
+
+    if(IsReplayMode(m_State))
+      AddWrapper(wrapped, ToTypedHandle(obj));
+
+    obj = realtype((uint64_t)wrapped);
+
+    return id;
+  }
+
+  unsigned long long djb2_hash(const char* pCode, size_t len) {
+    unsigned long long hash = 5381;
+    for (size_t i = 0; i < len; i++) {
+      hash = ((hash << 5) + hash) + pCode[i];  // hash * 33 + c
+    }
+    return hash;
+  }
+
   template <typename realtype>
   ResourceId WrapReusedResource(VkResourceRecord *record, realtype &obj)
   {
