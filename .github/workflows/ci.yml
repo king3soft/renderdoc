@@ -149,6 +149,16 @@ jobs:
           echo "::error::$(cat test.log)" | tr -d '\r' |  tr '\n' '\001' | sed -e 's#\x01#%0D%0A#g';
           exit 1;
         fi
+    - if: matrix.configuration == 'Release'
+      name: Packing
+      run: |
+        tar -zcvf RenderDoc-Release-Windows.tar.gz ./*/Release
+    - if: matrix.configuration == 'Release'
+      name: Uploading
+      uses: actions/upload-artifact@v2
+      with:
+        name: RenderDoc-Release-Windows-${{ matrix.platform }}
+        path: RenderDoc-Release-Windows.tar.gz
   docs:
     name: Documentation Build
     needs: [commit-msg, clang-format]
