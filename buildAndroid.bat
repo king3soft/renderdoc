@@ -6,7 +6,7 @@ cmake -DBUILD_ANDROID=On -DANDROID_ABI=armeabi-v7a -GNinja ..
 if exist lib rd /s /q lib
 ninja
 cd ..
-copy build-android\\bin\\org.renderdoc.renderdoccmd.arm32.apk .\\*\\Development\\plugins\\android\\org.renderdoc.renderdoccmd.arm32.apk
+copy build-android\\bin\\org.renderdoc.renderdoccmd.arm32.apk .\\x64\\Development\\plugins\\android\\org.renderdoc.renderdoccmd.arm32.apk
 
 
 set BUILD_DIR=build-android64
@@ -16,7 +16,7 @@ cmake -DBUILD_ANDROID=On -DANDROID_ABI=arm64-v8a -GNinja ..
 if exist lib rd /s /q lib
 ninja
 cd ..
-copy build-android64\\bin\\org.renderdoc.renderdoccmd.arm64.apk .\\*\\Development\\plugins\\android\\org.renderdoc.renderdoccmd.arm64.apk
+copy build-android64\\bin\\org.renderdoc.renderdoccmd.arm64.apk .\\x64\\Development\\plugins\\android\\org.renderdoc.renderdoccmd.arm64.apk
 
 
 del /s *.vc.db
@@ -35,3 +35,4 @@ del /s *.obj.enc
 del /s *.tli
 del /s *.exp
 del /s *.pch
+del /s *.lib
