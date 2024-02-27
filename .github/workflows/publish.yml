@@ -108,8 +108,10 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
-    - name: Setup Android SDK
-      uses: android-actions/setup-android@v3
+    - name: Set up Android SDK
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+      with:
+        sdk-version: 20348
     - name: Setup Android NDK
       uses: nttld/setup-ndk@v1
       id: setup-ndk
