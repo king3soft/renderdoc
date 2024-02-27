@@ -103,10 +103,10 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Set up Ninja tools
       uses: seanmiddleditch/gha-setup-ninja@master
-    - name: Set up Android SDK
-      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
       with:
-        sdk-version: 20348
+        cmdline-tools-version: 9123335
     - name: Setup Android NDK
       uses: nttld/setup-ndk@v1
       id: setup-ndk
