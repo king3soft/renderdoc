@@ -301,8 +301,10 @@ VkResult WrappedVulkan::vkCreateShaderModule(VkDevice device,
   if(ret == VK_SUCCESS)
   {
     // ResourceId id = GetResourceManager()->WrapResource(Unwrap(device), *pShaderModule);
-    int64_t hasdId = GetResourceManager()->djb2_hash(reinterpret_cast<const char*>(pCreateInfo->pCode), pCreateInfo->codeSize);
-    ResourceId id = GetResourceManager()->WrapResourceWithHashId(Unwrap(device), *pShaderModule, hasdId);
+    int64_t hasdId = GetResourceManager()->djb2_hash(
+      reinterpret_cast<const char*>(pCreateInfo->pCode), pCreateInfo->codeSize);
+    ResourceId id =
+      GetResourceManager()->WrapResourceWithHashId(Unwrap(device), *pShaderModule, hasdId);
 
     if(IsCaptureMode(m_State))
     {
