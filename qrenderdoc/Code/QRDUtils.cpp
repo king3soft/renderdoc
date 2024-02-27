@@ -79,6 +79,12 @@ rdcstr DoStringise(const ResourceId &el)
 {
   uint64_t num;
   memcpy(&num, &el, sizeof(num));
+
+  if((num >> 60) > 0)
+  {
+    QString hexId = QString::number(num, 16);
+    return lit("ResourceId::%1, HexId::%2").arg(num).arg(hexId);
+  }
   return lit("ResourceId::%1").arg(num);
 }
 
