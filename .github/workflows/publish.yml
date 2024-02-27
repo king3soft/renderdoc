@@ -1,0 +1,142 @@
+name: PUBLISH
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  commit-msg:
+    name: Commit message check
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 100
+    - name: Check commit messages
+      run: |
+        if git log --oneline | tail -n +2 | head -n 100 | cut -d ' ' -f2- | grep -q '.\{73\}'; then
+          (echo -n "::error::";
+           echo "Some commit message summary lines are too long. See CONTRIBUTING.md for more information.";
+           echo "Invalid commits:";
+           echo;
+           git log --oneline | tail -n +2 | head -n 100 | cut -d ' ' -f2- | grep '.\{73\}';) | tr '\n' '\001' | sed -e 's#\x01#%0A#g';
+          exit 1;
+        fi
+  clang-format:
+    name: Code formatting check
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 5
+    - name: Run clang-format
+      run: |
+        bash ./util/clang_format_all.sh
+        git clean -f
+    - name: Check formatting
+      run: |
+        git diff --quiet || (
+          (echo -n "::error::";
+          echo "clang-format issues were found. See CONTRIBUTING.md for more information.";
+          echo;
+          git diff;) | tr '\n' '\001' | sed -e 's#\x01#%0A#g';
+          exit 1;
+        )
+  cmake-minimum:
+    name: Baseline cmake check
+    needs: [commit-msg, clang-format]
+    runs-on: ubuntu-20.04
+    env:
+      QT_SELECT: qt5
+    strategy:
+      fail-fast: true
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 5
+    - name: Download minimum supported cmake version
+      run: |
+        pushd /tmp
+        wget https://cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.tar.gz
+        tar -zxvf cmake-2.8.12.2-Linux-i386.tar.gz
+        popd
+    - name: Install compilation dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libx11-dev mesa-common-dev libgl1-mesa-dev qtbase5-dev libxcb-keysyms1-dev
+    - name: Configure renderdoc with cmake
+      run: |
+        mkdir build
+        cd build
+        /tmp/cmake-2.8.12.2-Linux-i386/bin/cmake -DCMAKE_BUILD_TYPE=Debug ..
+  windows:
+    name: Windows
+    needs: [commit-msg, clang-format]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [ VS2019 x64 Development ]
+        include:
+          - name: VS2019 x64 Development
+            os: windows-2019
+            compiler: VS2019
+            toolset: v142
+            platform: x64
+            configuration: Development
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 5
+    - name: Download optional 3rdparty extras
+      run: |
+        curl https://renderdoc.org/qrenderdoc_3rdparty.zip -O
+        7z x qrenderdoc_3rdparty.zip
+    - name: Set up Visual Studio tools
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Set up Ninja tools
+      uses: seanmiddleditch/gha-setup-ninja@master
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+    - name: Setup Android NDK
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r25e
+        add-to-path: true
+    - name: Building solution
+      run: msbuild.exe renderdoc.sln "/m" "/p:Configuration=${{ matrix.configuration }}" "/p:Platform=${{ matrix.platform }}" "/p:PlatformToolset=${{ matrix.toolset }}"
+      shell: powershell
+    - if: matrix.configuration == 'Development'
+      name: Running core unit tests
+      run: |
+        if ! ./*/Development/renderdoccmd.exe test unit -o test.log; then
+          echo "::error::$(cat test.log)" | tr -d '\r' |  tr '\n' '\001' | sed -e 's#\x01#%0D%0A#g';
+          exit 1;
+        fi
+    - if: matrix.configuration == 'Development'
+      name: Running UI unit tests
+      run: |
+        if ! ./*/Development/qrenderdoc.exe --unittest log=test.log; then
+          echo "::error::$(cat test.log)" | tr -d '\r' |  tr '\n' '\001' | sed -e 's#\x01#%0D%0A#g';
+          exit 1;
+        fi
+    - name: Building android
+      run: ./buildAndroid.bat
+    - name: Uploading
+      uses: actions/upload-artifact@v2
+      with:
+        name: RenderDoc-Windows-${{ matrix.platform }}
+        path: ./*/Development
