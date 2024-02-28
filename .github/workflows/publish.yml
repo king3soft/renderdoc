@@ -159,24 +159,7 @@ jobs:
       run: msbuild.exe renderdoc.sln "/m" "/p:Configuration=${{ matrix.configuration }}" "/p:Platform=${{ matrix.platform }}" "/p:PlatformToolset=${{ matrix.toolset }}"
       shell: powershell
     - name: Clean
-      run: |
-        del /s *.vc.db
-        del /s *.tlog
-        del /s *.log
-        del /s *.idb
-        del /s *.pdb
-        del /s *.lastbuildstate
-        del /s *.ilk
-        del /s *.exp
-        del /s *.obj
-        del /s *.iobj
-        del /s *.ipch
-        del /s *.tlh
-        del /s *.obj.enc
-        del /s *.tli
-        del /s *.exp
-        del /s *.pch
-        del /s *.lib
+      run: ./clean.bat
     - name: Uploading
       uses: actions/upload-artifact@v2
       with:
