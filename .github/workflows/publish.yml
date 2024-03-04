@@ -148,11 +148,11 @@ jobs:
     - uses: actions/download-artifact@v2
       with:
         name: android-arm32
-        path: x64/Development/plugins/android/org.renderdoc.renderdoccmd.arm32.apk
+        path: x64/Development/plugins/android/
     - uses: actions/download-artifact@v2
       with:
         name: android-arm64
-        path: x64/Development/plugins/android/org.renderdoc.renderdoccmd.arm64.apk
+        path: x64/Development/plugins/android/
     - name: Set up Visual Studio tools
       uses: microsoft/setup-msbuild@v1.1
     - name: Building solution
