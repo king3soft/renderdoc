@@ -154,7 +154,6 @@ public:
           QString hexId = QString::number(hash, 16);
           return lit("<hashid=%1>").arg(hexId);
         }
-        
       }
     }
     return "<hashid=Unkonw>";
