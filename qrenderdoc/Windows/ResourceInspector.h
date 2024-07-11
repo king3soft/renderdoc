@@ -127,4 +127,36 @@ private:
   ResourceSorterModel *m_FilterModel;
   StructuredDataItemModel *m_ChunksModel;
   RichTextViewDelegate *m_delegate;
+public:
+  static unsigned long long _djb2_hash(const char *pCode, size_t len)
+  {
+    unsigned long long hash = 5381;
+    for(size_t i = 0; i < len; i++)
+    {
+      hash = ((hash << 5) + hash) + pCode[i];    // hash * 33 + c
+    }
+    return hash;
+  }
+
+  static rdcstr _GetHash(const rdcarray<SDObject *> &objs)
+  {
+    for(SDObject *sdo : objs)
+    {
+      if(strstr(sdo->name.c_str(), "glShaderSource"))
+      {
+        SDObject *count = sdo->FindChild("count");
+        if(count->AsInt32() > 0)
+        {
+          SDObject *sources = sdo->FindChild("sources");
+          const char *shaderCode = sources->GetChild(0)->data.str.c_str();
+
+          uint64_t hash = _djb2_hash(shaderCode, strlen(shaderCode));
+          QString hexId = QString::number(hash, 16);
+          return lit("<hashid=%1>").arg(hexId);
+        }
+        
+      }
+    }
+    return "<hashid=Unkonw>";
+  }
 };
